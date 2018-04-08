@@ -9,8 +9,16 @@ int status;
 
 SensorFusion sensorFusion;
 
+#define X_AXIS A0
+#define Y_AXIS A1
+#define BUTTON 9
+
 void setup()
 {
+    pinMode(X_AXIS, INPUT);
+    pinMode(Y_AXIS, INPUT);
+    pinMode(BUTTON, INPUT_PULLUP);
+
     Serial.begin(115200);
     while (!Serial)
     {
@@ -39,7 +47,7 @@ void setup()
 
 static const unsigned int timeDelta = 1000U / FREQUENCY;
 
-#define BUFFER_SIZE (64U)
+#define BUFFER_SIZE (128U)
 uint8_t buffer[BUFFER_SIZE];
 uint8_t bufferIndex = 0U;
 
@@ -75,11 +83,18 @@ void loop()
         processIncomingByte(buffer, &bufferIndex, BUFFER_SIZE, (uint32_t)millis(), incomingByte, processIncomingPacket);
     }
 
+    //delay(10);
+
     uint32_t millisNow = millis();
     if (((millisNow % timeDelta) == 0U) && (millisNow != lastSensorSent))
     {
         lastSensorSent = millisNow;
         SensorPacket sensorPacket = {0};
+
+        sensorPacket.payload.xJoypad = analogRead(X_AXIS);
+    //    delay(10);
+        sensorPacket.payload.yJoypad = analogRead(Y_AXIS);
+        sensorPacket.payload.joypadButton = digitalRead(BUTTON) == 0;
 
         IMU.readSensor();
 
@@ -104,7 +119,13 @@ void loop()
         );
 
         setHeader((uint8_t *)&sensorPacket, PAYLOAD_SENSOR);
-
+/*
+        Serial.print(sensorPacket.payload.xJoypad);
+        Serial.print(" ");
+        Serial.println(sensorPacket.payload.yJoypad);
+        Serial.print(" ");
+        Serial.println(sensorPacket.payload.joypadButton);
+*/
         Serial.write((uint8_t *)&sensorPacket, sizeof(SensorPacket));
     }
 }

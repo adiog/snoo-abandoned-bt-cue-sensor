@@ -46,13 +46,13 @@ int formatPongPayload(char *outputBuffer, const PongPayload *payload)
 }
 
 int formatSensorPayload(char *outputBuffer, const SensorPayload *payload)
-{
+{return 0; /*
     return sprintf(
         outputBuffer,
         "[%02.3f %02.3f %02.3f]",
         payload->accelerometerMSS[0],
         payload->accelerometerMSS[1],
-        payload->accelerometerMSS[2]);
+        payload->accelerometerMSS[2]);*/
 }
 
 int formatPayload(char *outputBuffer, const uint8_t *packet)

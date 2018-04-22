@@ -13,14 +13,17 @@ SensorFusion sensorFusion;
 #define Y_AXIS A1
 #define BUTTON 9
 
+#define SerialBT Serial1
+
+
 void setup()
 {
     pinMode(X_AXIS, INPUT);
     pinMode(Y_AXIS, INPUT);
     pinMode(BUTTON, INPUT_PULLUP);
 
-    Serial.begin(115200);
-    while (!Serial)
+    SerialBT.begin(38400);
+    while (!SerialBT)
     {
     }
 
@@ -29,10 +32,10 @@ void setup()
     {
         while (1)
         {
-            Serial.println("IMU initialization unsuccessful");
-            Serial.println("Check IMU wiring or try cycling power");
-            Serial.print("Status: ");
-            Serial.println(status);
+            SerialBT.println("IMU initialization unsuccessful");
+            SerialBT.println("Check IMU wiring or try cycling power");
+            SerialBT.print("Status: ");
+            SerialBT.println(status);
             delay(10000);
         }
     }
@@ -72,13 +75,14 @@ void processIncomingPacket(const uint8_t *packet)
     }
 }
 
+
 void loop()
 {
     static uint32_t lastSensorSent = 0U;
 
-    if (Serial.available() > 0)
+    if (SerialBT.available() > 0)
     {
-        uint8_t incomingByte = (uint8_t)Serial.read();
+        uint8_t incomingByte = (uint8_t)SerialBT.read();
 
         processIncomingByte(buffer, &bufferIndex, BUFFER_SIZE, (uint32_t)millis(), incomingByte, processIncomingPacket);
     }
@@ -126,6 +130,6 @@ void loop()
         Serial.print(" ");
         Serial.println(sensorPacket.payload.joypadButton);
 */
-        Serial.write((uint8_t *)&sensorPacket, sizeof(SensorPacket));
+        SerialBT.write((uint8_t *)&sensorPacket, sizeof(SensorPacket));
     }
 }
